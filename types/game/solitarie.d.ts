@@ -3,4 +3,5 @@ export interface Card {
     color: string;
     type: string;
     isFaceUp: boolean;
+    zone: string;
 }
