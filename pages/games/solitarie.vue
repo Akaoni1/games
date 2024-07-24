@@ -1,46 +1,50 @@
 <template>
-    <div>
-        <h1>solitarie</h1>
-        <button @click="startGame">Start game</button>
+    <main>
+        <header>
+            <h1>solitarie</h1>
+            <Button :on-click="startGame" variant="primary">Start game</Button>
+        </header>
         <div class="board">
-            <div class="deck" @click="showDeckCard()">
+            <section class="deck" @click="showDeckCard()">
 
                 <button class="card" draggable="true" v-for="card in deck" :key="`${card.number}${card.type}`">
                     <GamesSolitarieCard :card="card" />
                 </button>
-            </div>
-            <div class="discard">
+            </section>
+            <section class="discard">
                 <button class="card" draggable="true" v-for="card in discard" :key="`${card.number}${card.type}`"
                     @dragstart="handleDragStart(card)">
                     <GamesSolitarieCard :card="card" />
                 </button>
-            </div>
-            <div class="stacks">
-                <div class="stack" v-for="(stack,index) in stacks" @drop="handleDrop(stack, `stack-${index}`)" @dragover.prevent="">
+            </section>
+            <section class="stacks">
+                <div class="stack" v-for="(stack, index) in stacks" @drop="handleDrop(stack, `stack-${index}`)"
+                    @dragover.prevent="">
                     <button class="card" draggable="true" v-for="card in stack" :key="`${card.number}${card.type}`"
                         @dragstart="handleDragStart(card)">
                         <GamesSolitarieCard :card="card" />
                     </button>
                 </div>
-            </div>
-            <div class="piles">
-                <div class="pile" v-for="(pile, i) in piles" @drop="handleDrop(pile,`pile-${i}`)" @dragover.prevent="">
+            </section>
+            <section class="piles">
+                <div class="pile" v-for="(pile, i) in piles" @drop="handleDrop(pile, `pile-${i}`)" @dragover.prevent="">
                     <button class="card" draggable="true" v-for="(card, index) in pile" :style="`top: ${index * 20}px`"
-                        :key="`${card.number}${card.type}`" @dragstart="handleDragStart(card)" @click="handleCardClick(card)">
+                        :key="`${card.number}${card.type}`" @dragstart="handleDragStart(card)"
+                        @click="handleCardClick(card)">
                         <GamesSolitarieCard :card="card" />
                     </button>
                 </div>
-            </div>
+            </section>
         </div>
-    </div>
+    </main>
 </template>
 <script setup lang="ts">
 import type { Card } from '~/types/game/solitarie';
 enum colors {
-    H = "red",
-    D = "red",
-    S = "black",
-    C = "black",
+    "H" = "red",
+    "D" = "red",
+    "S" = "black",
+    "C" = "black",
 };
 
 const deck = ref<Card[]>([]);
@@ -51,7 +55,7 @@ const selectedCard = ref<Card | null>(null);
 //methods
 const startGame = () => {
     resetBoard();
-    //shuffleDeck();
+    shuffleDeck();
     fillPiles();
     showDeckCard();
 };
@@ -148,7 +152,7 @@ const addCardToPile = (zone: Card[], type: string) => {
         const cardIndex = discard.value.findIndex(card => card === selectedCard.value);
         discard.value.splice(cardIndex, 1);
     }
-    if(previousZone.startsWith('stack')) {
+    if (previousZone.startsWith('stack')) {
         const stackIndex = parseInt(previousZone.split('-')[1]);
         const cardIndex = stacks.value[stackIndex].findIndex(card => card === selectedCard.value);
         stacks.value[stackIndex].splice(cardIndex, 1);
@@ -222,7 +226,7 @@ const handleDrop = (zone: Card[], type: string) => {
 const endGame = () => {
     // si todas los stack tienen 13 cartas
     if (stacks.value.every(stack => stack.length === 13)) {
-        alert('You win'); 
+        alert('You win');
     }
 };
 onMounted(() => {
@@ -232,6 +236,21 @@ onMounted(() => {
 <style scoped>
 * {
     box-sizing: border-box;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin: 0;
 }
 
 .card {
@@ -245,7 +264,7 @@ onMounted(() => {
 }
 
 .card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-10%);
 }
 
 .board {
@@ -253,32 +272,32 @@ onMounted(() => {
     grid-template-columns: repeat(7, 1fr);
     gap: 20px 10px;
     user-select: none;
-    background-color: lime;
+    width: 100%;
+
 }
 
 .deck {
     grid-column: 1 / 2;
     position: relative;
     aspect-ratio: 5/7;
-    background-color: lightgray;
 }
 
 .discard {
     grid-column: 2 / 3;
     position: relative;
     aspect-ratio: 5/7;
-    background-color: lightcoral;
 }
 
 .stacks {
     grid-column: 4 / 8;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--text-color);
+    gap: 10px;
 
     .stack {
         position: relative;
         aspect-ratio: 5/7;
-        background-color: lightgreen;
     }
 }
 
@@ -287,13 +306,10 @@ onMounted(() => {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 10px;
-    background-color: lightblue;
 
     .pile {
         aspect-ratio: 5/7;
         position: relative;
-
-
     }
 }
 </style>
