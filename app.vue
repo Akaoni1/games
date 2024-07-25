@@ -6,8 +6,8 @@
 <style>
 @media (prefers-color-scheme: dark) {
   :root {
-    --background-color: black;
-    --text-color: white;
+    --background-color: #002b36;
+    --text-color: #FDF6E3;
     --primary-color: #ff5722;
     --primary-hightlight-color: #ff8a65;
     --secondary-color: #ff9800;
@@ -18,8 +18,8 @@
 @media (prefers-color-scheme: light) {
 
   :root {
-    --background-color: white;
-    --text-color: black;
+    --background-color: #FDF6E3;
+    --text-color: #002b36;
     --primary-color: #ff5722;
     --primary-hightlight-color: #ff8a65;
     --secondary-color: #ff9800;

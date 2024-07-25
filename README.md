@@ -4,5 +4,6 @@ This is a Nuxt 3 application created for practicing game development. It include
 
 ## List of Games
 - Solitaire Game 
+- Sudoku
 - others soon
 - ...
