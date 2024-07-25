@@ -27,6 +27,9 @@
   }
 }
 
+* {
+    box-sizing: border-box;
+}
 body {
   background-color: var(--background-color);
   color: var(--text-color);

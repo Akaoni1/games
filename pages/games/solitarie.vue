@@ -2,19 +2,18 @@
     <main>
         <header>
             <h1>solitarie</h1>
-            <Button :on-click="startGame" variant="primary">Start game</Button>
+            <Button :on-click="startGame" variant="primary">{{ startButtonText }}</Button>
         </header>
         <div class="board">
             <section class="deck" @click="showDeckCard()">
-
                 <button class="card" draggable="true" v-for="card in deck" :key="`${card.number}${card.type}`">
-                    <GamesSolitarieCard :card="card" />
+                    <GamesCard :card="card" />
                 </button>
             </section>
             <section class="discard">
                 <button class="card" draggable="true" v-for="card in discard" :key="`${card.number}${card.type}`"
-                    @dragstart="handleDragStart(card)">
-                    <GamesSolitarieCard :card="card" />
+                    @dragstart="handleDragStart(card)" @click="handleCardClick(card)">
+                    <GamesCard :card="card" />
                 </button>
             </section>
             <section class="stacks">
@@ -22,7 +21,7 @@
                     @dragover.prevent="">
                     <button class="card" draggable="true" v-for="card in stack" :key="`${card.number}${card.type}`"
                         @dragstart="handleDragStart(card)">
-                        <GamesSolitarieCard :card="card" />
+                        <GamesCard :card="card" />
                     </button>
                 </div>
             </section>
@@ -31,7 +30,7 @@
                     <button class="card" draggable="true" v-for="(card, index) in pile" :style="`top: ${index * 20}px`"
                         :key="`${card.number}${card.type}`" @dragstart="handleDragStart(card)"
                         @click="handleCardClick(card)">
-                        <GamesSolitarieCard :card="card" />
+                        <GamesCard :card="card" />
                     </button>
                 </div>
             </section>
@@ -52,8 +51,13 @@ const piles = ref<Card[][]>([]);
 const stacks = ref<Card[][]>([]);
 const discard = ref<Card[]>([]);
 const selectedCard = ref<Card | null>(null);
+const gameStarted = ref(false);
+const startButtonText = computed(() => {
+    return gameStarted.value ? 'Restart game' : 'Start game';
+});
 //methods
 const startGame = () => {
+    gameStarted.value = true;
     resetBoard();
     shuffleDeck();
     fillPiles();
@@ -176,8 +180,8 @@ const addCardToPile = (zone: Card[], type: string) => {
     zone.push(selectedCard.value);
     selectedCard.value = null;
 };
-const handleCardClick = (card: Card) => {
-    // reviasa si es la ultima carta de la pila
+const handleSingleClick = (card: Card) => {
+    // check if card is the last card in the pile
     if (card.zone.startsWith('pile')) {
         const pileIndex = parseInt(card.zone.split('-')[1]);
         if (piles.value[pileIndex][piles.value[pileIndex].length - 1] !== card) {
@@ -189,6 +193,54 @@ const handleCardClick = (card: Card) => {
     }
     card.isFaceUp = true;
 };
+const handleDoubleClick = (card: Card) => {
+    if(!card.isFaceUp){
+        return;
+    }
+    if(card.zone.startsWith('stack')){
+        return;
+    }
+    // check if card is the last card in the pile
+    if (card.zone.startsWith('pile')) {
+        const pileIndex = parseInt(card.zone.split('-')[1]);
+        if (piles.value[pileIndex][piles.value[pileIndex].length - 1] !== card) {
+            return;
+        }
+    }
+    //check if card can be moved to a stack
+    for (const stack of stacks.value) {
+        if (stack.length === 0 && card.number === 1) {
+            selectedCard.value = card;
+            addCardToStack(stack, `stack-${stacks.value.indexOf(stack)}`);
+            return;
+        }
+        if (stack.length === 0) {
+            continue;
+        }
+        const lastCard = stack[stack.length - 1];
+        if (card.number === lastCard.number + 1 && card.type === lastCard.type) {
+            selectedCard.value = card;
+            addCardToStack(stack, `stack-${stacks.value.indexOf(stack)}`);
+            return;
+        }
+    }
+
+};
+const clicks = ref(0);
+const handleCardClick = (card: Card) => {
+    clicks.value++;
+    setTimeout(() => {
+        if (clicks.value === 1) {
+            // single click
+            handleSingleClick(card);
+        } else {
+            // double click
+            handleDoubleClick(card);
+        }
+        clicks.value = 0;
+    }, 250);
+};
+
 const handleDrop = (zone: Card[], type: string) => {
     if (!selectedCard.value) {
         return;
@@ -229,15 +281,8 @@ const endGame = () => {
         alert('You win');
     }
 };
-onMounted(() => {
-    startGame();
-});
 </script>
 <style scoped>
-* {
-    box-sizing: border-box;
-}
-
 main {
     display: flex;
     flex-direction: column;
